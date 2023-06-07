@@ -1,0 +1,37 @@
+.form{
+  border:2px solid white;
+  border-radius: 15px;
+  background-color: rgb(16, 108, 245);
+  width:50%;
+  margin-left: 25%;
+  margin-top: 5%;
+  /* font-family: 'Quando', serif; */
+  height: 100%;
+}
+h2{
+  margin-top: 12px;
+  text-align: center;
+}
+.label{
+  padding: 10px;
+  margin: 10px;
+}
+.input{
+margin-left: 20px;
+padding: 5px 10px;
+border: 2px solid; 
+/* border-radius: 50px; */
+}
+textarea{
+  resize: none;
+}
+.submitBtn{
+  border: 1px solid white;
+  border-radius: 6px;
+  padding: 4px 10px;
+  background-color: black;
+  color: aliceblue;
+  margin-left: 30%;
+  margin-bottom: 20px;
+
+}
