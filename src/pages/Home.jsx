@@ -1,12 +1,13 @@
-import React, {  useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../assets/styles/signup.css";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { useNavigate, Link } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
-const Login = () => {
+const Home = () => {
   const [loginData, setLoginData] = useState(
     []
     // {
@@ -47,12 +48,12 @@ const Login = () => {
     setSubmit(true);
 
     axios
-      .post("http://localhost:8001/home", e)
+      .post("http://localhost:8001/login", e)
       // const ans = await req.data;
       // console.log(ans);
       .then((res) => console.log(res.config.data))
       .catch((err) => console.log(err));
-    navigate("/home");
+    // navigate("/signup");
   };
   return (
     <div>
@@ -76,7 +77,7 @@ const Login = () => {
                         className="form-control form-control-lg"
                         {...register("email")}
                       />
-                      <label className="form-label" for="email">
+                      <label className="form-label" for="typeEmailX-2">
                         Email
                       </label>
                       <br></br>
@@ -87,11 +88,10 @@ const Login = () => {
                       <input
                         type="password"
                         id="password"
-                        name="passsword"
                         className="form-control form-control-lg"
                         {...register("password")}
                       />
-                      <label className="form-label" for="password">
+                      <label className="form-label" for="typePasswordX-2">
                         Password
                       </label>
                       <br></br>
@@ -129,4 +129,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Home;

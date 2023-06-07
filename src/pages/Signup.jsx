@@ -3,18 +3,19 @@ import "../assets/styles/signup.css";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { City, Country, State } from "../utils/constant";
 import { Dropdown } from "../components/Dropdown";
 import axios from "axios";
 
 const Signup = () => {
-  const [signupData, setSignupData] = useState({
+  const [signupData, setSignupData] = useState(
+    []
+    // {
     // userName:"",
     // password:"",
-    // firstName: "",
-    // lastName: "",
+    // first_name: "",
+    // last_name: "",
     // gender:"",
     // dob:"",
     // email:"",
@@ -24,7 +25,8 @@ const Signup = () => {
     // city:"",
     // pincode:"",
     // address:""
-  });
+    // }
+  );
 
   const [submit, setSubmit] = useState(false);
   const navigate = useNavigate();
@@ -32,40 +34,40 @@ const Signup = () => {
   // YUP VALIDATIONS...
 
   const formSchema = yup.object().shape({
-    firstName: yup.string().required("Name is required!!"),
-    // lastName: yup.string().required("Name is required!!"),
-    // gender: yup.string().required("gender is required!!"),
-    // dob: yup.string().required("date is required!!"),
-    // email: yup.string().email().required(),
-    // password: yup.string().min(5).max(12).required(),
-    // cpassword: yup
-    //   .string()
-    //   .oneOf([yup.ref("password"), null], "Password is not matched!!")
-    //   .required(),
-    // phoneNo: yup
-    //   .number()
-    //   .integer()
-    //   .positive()
-    //   .min(6000000000, "number is not valide!!")
-    //   .required()
-    //   .typeError("amount is required!!"),
-    // address: yup
-    //   .string()
-    //   .min(5)
-    //   .trim()
-    //   .max(250)
-    //   .required()
-    //   .typeError("address is required!!"),
-    // country: yup.string().required("country is required!!"),
-    // state: yup.string().required("state is required!!"),
-    // city: yup.string().required("city is required!!"),
-    // pincode: yup
-    //   .number()
-    //   .integer()
-    //   .positive()
-    //   .min(100000, "pincode is not valid!!")
-    //   .max(999999)
-    //   .required("pincode is required!!"),
+    first_name: yup.string().required("Name is required!!"),
+    last_name: yup.string().required("Name is required!!"),
+    gender: yup.string().required("gender is required!!"),
+    dob: yup.string().required("date is required!!"),
+    email: yup.string().email().required(),
+    password: yup.string().min(5).max(12).required(),
+    cpassword: yup
+      .string()
+      .oneOf([yup.ref("password"), null], "Password is not matched!!")
+      .required(),
+    phoneNo: yup
+      .number()
+      .integer()
+      .positive()
+      .min(6000000000, "number is not valide!!")
+      .required()
+      .typeError("amount is required!!"),
+    address: yup
+      .string()
+      .min(5)
+      .trim()
+      .max(250)
+      .required()
+      .typeError("address is required!!"),
+    country: yup.string().required("country is required!!"),
+    state: yup.string().required("state is required!!"),
+    city: yup.string().required("city is required!!"),
+    pincode: yup
+      .number()
+      .integer()
+      .positive()
+      .min(100000, "pincode is not valid!!")
+      .max(999999)
+      .required("pincode is required!!"),
   });
 
   let udata = {};
@@ -80,24 +82,13 @@ const Signup = () => {
   });
   // ......
 
-  useEffect(() => {
-    if (submit) {
-      console.log("submtit");
-      setSignupData(signupData);
-      axios.post('http://localhost:8001/signup',signupData)
-      .then(res =>console.log("register successfully"))
-      .catch(err => console.log(err))
-      // navigate("/transaction");
-    }
-  }, [signupData]);
 
-  const onSubmit = (e) => {
-
+  const onSubmit = async (e) => {
     // let {
     //   userName,
     //   password,
-    //   firstName,
-    //   lastName,
+    //   first_name,
+    //   last_name,
     //   gender,
     //   dob,
     //   email,
@@ -111,12 +102,14 @@ const Signup = () => {
     console.log(e);
     setSignupData(e);
     setSubmit(true);
+    
+    navigate('/login'); 
     axios
-    .post("http://localhost:8001/signup", { e })
-        .then((res) => console.log("register successfully"))
-        .catch((err) => console.log(err + "fhgjfffdfdasfasfg"));
-    // e.preventDefault();
-    console.log(signupData);
+      .post("http://localhost:8001/signup", e)
+      // const ans = await req.data;
+      // console.log(ans);
+      .then((res) => console.log(res.config.data))
+      .catch((err) => console.log(err));
   };
   return (
     <div>
@@ -144,10 +137,10 @@ const Signup = () => {
                               <div className="form-outline">
                                 <input
                                   type="text"
-                                  name="firstName"
+                                  name="first_name"
                                   id="firstName"
                                   className="form-control form-control-lg"
-                                  {...register("firstName")}
+                                  {...register("first_name")}
                                   // onChange={(e) => hasChange(e)}
                                 />
                                 <label
@@ -164,10 +157,10 @@ const Signup = () => {
                               <div className="form-outline">
                                 <input
                                   type="text"
-                                  name="lastName"
+                                  name="last_name"
                                   id="lastName"
                                   // value={signupData.lastName}
-                                  {...register("lastName")}
+                                  {...register("last_name")}
                                   className="form-control form-control-lg"
                                   // onChange={(e) => hasChange(e)}
                                 />
@@ -462,12 +455,18 @@ const Signup = () => {
                           </button>
 
                           <button
-                            type="submit"
-                            id="submit"
+                            type="button"
+                            id="login"
                             className="btn btn-light btn-lg  "
                             data-mdb-ripple-color="dark"
                           >
-                            Login
+                            <Link
+                              to={"/login"}
+                              className="loginBtn mt-20"
+                              style={{ color: "black" }}
+                            >
+                              Login{" "}
+                            </Link>
                           </button>
                         </div>
                       </div>
