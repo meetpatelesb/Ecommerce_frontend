@@ -1,10 +1,11 @@
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import "../assets/styles/signup.css";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+const SERVER_URL = process.env.REACT_SERVER_URL;
 
 const Login = () => {
   const [loginData, setLoginData] = useState(
@@ -15,7 +16,8 @@ const Login = () => {
     // }
   );
 
-  const [submit, setSubmit] = useState(false);
+  // const [submit, setSubmit] = useState(false);
+  const [loginError, setLoginError] = useState(false);
   const navigate = useNavigate();
 
   // YUP VALIDATIONS...
@@ -38,21 +40,33 @@ const Login = () => {
   // ......
 
   const onSubmit = async (e) => {
-    // let {
-    //login,
-    //password
-    // } = e;
-    console.log(e);
     setLoginData(e);
-    setSubmit(true);
-
-    axios
-      .post("http://localhost:8001/home", e)
-      // const ans = await req.data;
-      // console.log(ans);
-      .then((res) => console.log(res.config.data))
-      .catch((err) => console.log(err));
-    navigate("/home");
+    try {
+      // await axios({
+      //   url: SERVER_URL + "/login",
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   data: e,
+      // });
+      const res = await axios.post("http://localhost:8001/login", e);
+      const data = res.data;
+      if (data?.status === 200 && data?.boolean === false) {
+        console.log(data);
+        setLoginError(true);
+      } else {
+        console.log("successfully");
+        setLoginError(false);
+        navigate("/home");
+      }
+    } catch (error) {
+      setLoginError(true);
+      console.log("Error, please try again");
+    }
+    // .then((res) => console.log(res.config.data))
+    // .catch((err) => console.log(err));
+    // navigate("/home");
   };
   return (
     <div>
@@ -96,6 +110,9 @@ const Login = () => {
                       </label>
                       <br></br>
                       <span>{errors.password?.message}</span>
+                      {loginError === true ? (
+                        <span>Email & Password is not correct!!</span>
+                      ) : null}
                     </div>
 
                     <button

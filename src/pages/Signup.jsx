@@ -29,6 +29,7 @@ const Signup = () => {
   );
 
   const [submit, setSubmit] = useState(false);
+  const[signupError,setSignupError] =useState(false);
   const navigate = useNavigate();
 
   // YUP VALIDATIONS...
@@ -103,13 +104,26 @@ const Signup = () => {
     setSignupData(e);
     setSubmit(true);
     
-    navigate('/login'); 
-    axios
-      .post("http://localhost:8001/signup", e)
+    // navigate('/login'); 
+    try {
+      const res = await axios.post("http://localhost:8001/signup", e);
+      const data = res.data;
+      if (data?.status === 200 && data?.boolean === false) {
+        setSignupError(true);
+          console.log("email already registererd!!");
+      } else {
+        setSignupError(false);
+        navigate('/login')
+      }
+    } catch (error) {
+      setSignupError(true)
+      console.log("please try again!!");
+    }
+   
       // const ans = await req.data;
       // console.log(ans);
-      .then((res) => console.log(res.config.data))
-      .catch((err) => console.log(err));
+      // .then((res) => console.log(res.config.data))
+      // .catch((err) => console.log(err));
   };
   return (
     <div>
@@ -287,6 +301,7 @@ const Signup = () => {
                                 </label>
                                 <br></br>
                                 <span>{errors.email?.message}</span>
+                                {signupError===true ?<span>email is already registererd!!</span>:null}
                               </div>
                             </div>
 

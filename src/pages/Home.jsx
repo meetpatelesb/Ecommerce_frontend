@@ -1,130 +1,107 @@
 import React, { useEffect, useState } from "react";
-import "../assets/styles/signup.css";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+// import image from "../../../Ecommerce_sequelize2/product_images/1686218496604.png";
 
 const Home = () => {
-  const [loginData, setLoginData] = useState(
-    []
-    // {
-    // password:"",
-    // email:"",
-    // }
-  );
+  const [productData, setProductData] = useState();
 
   const [submit, setSubmit] = useState(false);
   const navigate = useNavigate();
 
   // YUP VALIDATIONS...
 
-  const formSchema = yup.object().shape({
-    email: yup.string().email().required("email is required!!"),
-    password: yup.string().required("password is required!!").min(5).max(12),
-  });
-
-  let udata = {};
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(formSchema),
-    defaultValues: udata,
-  });
   // ......
+  useEffect(() => {
+    getproduct();
+  },[]);
+  const getproduct = async () => {
+    try {
+      const res = await axios.get(`http://localhost:8001/getproduct`);
+      const products = await res.data;
+      // const res = await axios.fetch("http://localhost:8001/getproducts");
+      // const ans = await res.data;
+      setProductData(products);
+      (products.data).map((h,i)=>{
+return console.log(i,h.id, h.name, h.discription, h.price,h.product_image);
+      })  
 
-  const onSubmit = async (e) => {
-    // let {
-    //login,
-    //password
-    // } = e;
-    console.log(e);
-    setLoginData(e);
-    setSubmit(true);
-
-    axios
-      .post("http://localhost:8001/login", e)
-      // const ans = await req.data;
       // console.log(ans);
-      .then((res) => console.log(res.config.data))
-      .catch((err) => console.log(err));
-    // navigate("/signup");
+      // .then((res) => console.log(res.config.data))
+      // .catch((err) => console.log(err));
+    } catch (error) {
+      console.log(error);
+    }
+   
   };
+
+
   return (
     <div>
-      <form onSubmit={handleSubmit(onSubmit)} method="POST">
-        <section className="vh-100">
-          <div
-            className="container py-5 h-100"
-            style={{ backgroundColor: " #508bfc" }}
-          >
-            <div className="row d-flex justify-content-center align-items-center h-100">
-              <div className="col-12 col-md-8 col-lg-6 col-xl-5">
-                <div className="card shadow-2-strong">
-                  <div className="card-body p-5 text-center">
-                    <h3 className="mb-5">Sign in</h3>
+      <section style={{ backgroundColor: "#eee" }}>
+        <div className="text-center container py-5">
+          <h4 className="mt-4 mb-5">
+            <strong>Bestsellers</strong>
+          </h4>
 
-                    <div className="form-outline mb-4">
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        className="form-control form-control-lg"
-                        {...register("email")}
-                      />
-                      <label className="form-label" for="typeEmailX-2">
-                        Email
-                      </label>
-                      <br></br>
-                      <span>{errors.email?.message}</span>
-                    </div>
-
-                    <div className="form-outline mb-4">
-                      <input
-                        type="password"
-                        id="password"
-                        className="form-control form-control-lg"
-                        {...register("password")}
-                      />
-                      <label className="form-label" for="typePasswordX-2">
-                        Password
-                      </label>
-                      <br></br>
-                      <span>{errors.password?.message}</span>
-                    </div>
-
-                    <button
-                      className="btn btn-primary btn-lg btn-block"
-                      type="submit"
-                    >
-                      Login
-                    </button>
-                    <br></br>
-
-                    <button
-                      className="btn btn-primary btn-lg btn-block "
-                      style={{ color: "white" }}
-                    >
-                      <Link
-                        to={"/signup"}
-                        className="loginBtn mt-20"
-                        style={{ color: "white" }}
-                      >
-                        Registration
-                      </Link>
-                    </button>
-                  </div>
-                </div>
-              </div>
+          <div className="row">
+          {
+            productData  && (productData.data).map((h,i)=>{
+return (
+  <div className="col-lg-3 col-md-12 mb-4">
+    <div className="card">
+      <div
+        className="bg-image hover-zoom ripple ripple-surface ripple-surface-light"
+        data-mdb-ripple-color="light"
+      >
+        <figure>
+          <img
+            src={`http://localhost:8001/${h.product_image}`}
+            height={150}
+            width={120}
+            alt=""
+            className="w-100"
+          />
+        </figure>
+        <a href="#!">
+          <div className="mask">
+            <div className="d-flex justify-content-start align-items-end h-100">
+              <h5>
+                <span className="badge bg-primary ms-2">New</span>
+              </h5>
             </div>
           </div>
-        </section>
-      </form>
+        </a>
+      </div>
+      <div className="card-body">
+        <h5 className="card-title mb-3">{h.name}</h5>
+        {/* </a>
+                  <a className="text-reset"> */}
+        <p>{h.discription}</p>
+        {/* </a> */}
+        <h6 className="mb-3">${h.price}</h6>
+      </div>
+      <a href={i}>
+        <div className="mask">
+          <div className="d-flex justify-content-start align-items-end h-100">
+            <h5>
+              <span className="badge bg-primary ms-2" key={i}>
+                Add to Cart
+              </span>
+            </h5>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+);
+})
+}
+</div>
+         
+          
+        </div>
+      </section>
     </div>
   );
 };
