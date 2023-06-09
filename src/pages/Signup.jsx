@@ -100,7 +100,6 @@ const Signup = () => {
     //   pincode,
     //   address,
     // } = e;
-    console.log(e);
     setSignupData(e);
     setSubmit(true);
     

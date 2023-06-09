@@ -80,7 +80,6 @@ const AddProduct = () => {
   const handleChange = (e) => {
     let receiptPhoto;
     let file = e.target.files[0];
-    console.log(file);
     let freader = new FileReader();
     freader.readAsDataURL(file);
     freader.addEventListener("load", () => {
@@ -101,7 +100,6 @@ const AddProduct = () => {
 
   const onSubmit = async (e) => {
     setproductData(e);
-    console.log(e);
     const formData = new FormData();
     formData.append("name", e.name);
     formData.append("discription", e.discription);
@@ -114,7 +112,7 @@ const AddProduct = () => {
         formData
       );
       const data = res.data;
-      navigate('/home')
+      navigate("/home");
     } catch (error) {
       console.log("Error, please try again");
     }
