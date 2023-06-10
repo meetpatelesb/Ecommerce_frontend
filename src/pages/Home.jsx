@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+
+
 import { formatter } from "../utils/helper";
+
+// const SERVER_URL =;
+console.log("asdjkhasfba" + process.env.REACT_APP_URL);
 
 const Home = () => {
   const [productData, setProductData] = useState();
@@ -15,7 +20,23 @@ const Home = () => {
 
   const getproduct = async () => {
     try {
-      const res = await axios.get(`http://localhost:8001/getproduct`);
+
+      // const res = await axios({
+      //   url:'http://localhost:8001/getproduct',
+      //   method:'GET',
+      //   headers:{
+      //     'Content-Type':'application/json',
+      //     // 'Content-Type':'multipart/form-data'
+      //   },
+      //   data:{}
+      // })
+      
+const res = await axios.get("http://localhost:8001/getproduct",{
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'JWT fefege...'
+    },data});
+      // const res = await axios.get(``);
       const products = await res.data;
       setProductData(products);
     } catch (error) {
@@ -24,20 +45,9 @@ const Home = () => {
   };
 console.log(productData);
   const addToCart = async (id) => {
-    //  const token = localStorage.getItem("token");
-    
-     
+     const token = JSON.parse(localStorage.getItem('token'));   
 
-    setCartItem(cartItem)
-    try {
-      console.log(id);
-      console.log(cartItem);
-      console.log(cartItem.indexOf(id));
-      if (cartItem.indexOf(id) !== -1) {
-        //  update
-      } else {
-        cartItem.push(id);
-        setCartItem(cartItem);
+    //  console.log(token.Userdata.customer_id);
         try {
           const res = await axios.post("http://localhost:8001/insertcart", {
             id: id,
@@ -49,12 +59,6 @@ console.log(productData);
           console.log("insert+++++++++++++++++++++++");
           console.log(error);
         }
-        // insert
-      }
-      console.log(cartItem);
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   return (

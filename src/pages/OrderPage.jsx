@@ -4,6 +4,7 @@ import axios from "axios";
 import { formatter } from "../utils/helper";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
+
 // import image from "../../../Ecommerce_sequelize2/product_images/1686218496604.png";
 
 const ProductCart = () => {
@@ -164,7 +165,7 @@ const ProductCart = () => {
                           <div className="col-md-2 d-flex justify-content-center">
                             <div>
                               <span>
-                              
+                                D
                                 <FontAwesomeIcon
                                   icon={faTrash}
                                   onClick={() => {
