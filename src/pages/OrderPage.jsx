@@ -1,22 +1,54 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { formatter } from "../utils/helper";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { useForm } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { Dropdown } from "../components/Dropdown";
+import { City, Country, State } from "../utils/constant";
 
 // import image from "../../../Ecommerce_sequelize2/product_images/1686218496604.png";
 
-const ProductCart = () => {
+const OrderPage = () => {
   const [productCartData, setproductCartData] = useState();
   const [cartItems, setCartItems] = useState();
   let [totalPrice, setTotalPrice] = useState(0);
+  let [address, setAddress] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getCartItems();
-    // updateCart();
+    getAddress();
   }, [cartItems]);
 
+  const getAddress = async () => {
+    const userId = 51;
+    try {
+      const res = await axios.post("http://localhost:8001/getaddress", {
+        userId,
+      });
+      const address = await res.data;
+      // console.log(address.getAddress);
+      setAddress(address.getAddress);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  console.log(address);
+  address?.map((address) => console.log(address.address));
+
+  const selectAddress = (e) => {
+    console.log(e.target.value);
+    const id = e.target.value;
+    const findAddress = (address) => {
+      return address.id === id
+    };
+  const x =  address.find(findAddress);
+  console.log(x);
+  };
   const getCartItems = async () => {
     const userId = 51;
     try {
@@ -29,6 +61,7 @@ const ProductCart = () => {
       console.log(error);
     }
   };
+
   useEffect(() => {
     let totalCartValue = 0;
     productCartData?.map(
@@ -38,38 +71,59 @@ const ProductCart = () => {
     setTotalPrice(totalCartValue);
   }, [productCartData]);
 
-  const updateCart = async (productId, type) => {
-    // differ();
-    //  setSweet(true)
-    const userId = 51;
-    console.log(productId, type);
+  // YUP VALIDATIONS...
+
+  const formSchema = yup.object().shape({
+    address: yup
+      .string()
+      .min(5)
+      .trim()
+      .max(250)
+      .required()
+      .typeError("address is required!!"),
+    country: yup.string().required("country is required!!"),
+    state: yup.string().required("state is required!!"),
+    city: yup.string().required("city is required!!"),
+    pincode: yup
+      .number()
+      .integer()
+      .positive()
+      .min(100000, "pincode is not valid!!")
+      .max(999999)
+      .required("pincode is required!!"),
+  });
+  let udata = {};
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(formSchema),
+    defaultValues: udata,
+  });
+  // ......
+
+  const onSubmit = async (e) => {
+    console.log(e);
+    const address = { ...e, customer_id: 51 };
+    console.log(address);
     try {
-      const res = await axios.post(`http://localhost:8001/updatecart`, {
-        cartId: userId,
-        productId: productId,
-        type: type,
-      });
-      const updatecart = await res.data;
-      console.log(updatecart.updateQuentity[0]);
-      setCartItems(updatecart);
-      // console.log(updatecart);
+      const res = await axios.post("http://localhost:8001/orderplace", address);
+      const data = res.data;
+      console.log(data);
+      if (data?.status === 200 && data?.boolean === true) {
+        console.log("email already registererd!!");
+        navigate("/home");
+      } else {
+        console.log("something missing!!!");
+      }
     } catch (error) {
-      console.log(error);
+      //  setSignupError(true);
+      console.log("please try again!!");
     }
+
   };
-
-  // const differ = () => {
-  //   toast.success("item add successfully!!", {
-  //     // position: "top-center",
-  //     // autoClose: 1000,
-  //     hideProgressBar: false,
-  //     // draggable: true,
-  //     // progress: undefined,
-  //     // theme: "dark",
-  //     // pauseOnHover: true,
-  //   });
-  // };
-
   return (
     <>
       <section className="h-100" style={{ backgroundColor: " #508bfc" }}>
@@ -77,20 +131,11 @@ const ProductCart = () => {
           <div className="row d-flex justify-content-center align-items-center h-100">
             <div className="col mt-25 mb-25">
               <p>
-                <span className="h2">Shopping Cart </span>
+                <span className="h2">Order Items</span>
                 <span className="h4">(1 item in your cart)</span>
               </p>
-              {/* <Toaster/> */}
-              {/* <SweetAlert
-                show={true}
-                title="Demo"
-                text="SweetAlert in React"
-                onConfirm={() =>{
-                  setSweet(true);
-                }}
-              /> */}
 
-              {productCartData?.map((items) => {
+              {  productCartData?.map((items) => {
                 return (
                   <>
                     <div className="card mb-2">
@@ -119,25 +164,10 @@ const ProductCart = () => {
                               <p className="small text-muted mb-4 pb-2">
                                 Quantity
                               </p>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  updateCart(items.product_id, "dec");
-                                }}
-                              >
-                                -
-                              </button>{" "}
+
                               <p className="lead fw-normal mb-0">
                                 {items.quentity}
                               </p>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  updateCart(items.product_id, "inc");
-                                }}
-                              >
-                                +
-                              </button>
                             </div>
                           </div>
                           <div className="col-md-2 d-flex justify-content-center">
@@ -162,25 +192,14 @@ const ProductCart = () => {
                               </p>
                             </div>
                           </div>
-                          <div className="col-md-2 d-flex justify-content-center">
-                            <div>
-                              <span>
-                                D
-                                <FontAwesomeIcon
-                                  icon={faTrash}
-                                  onClick={() => {
-                                    updateCart(items.product_id, "delete");
-                                  }}
-                                />
-                              </span>
-                            </div>
-                          </div>
                         </div>
                       </div>
                     </div>
                   </>
                 );
-              })}
+              }) 
+              
+            }
 
               <div className="card mb-5">
                 <div className="card-body p-4">
@@ -196,24 +215,137 @@ const ProductCart = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>{" "}
+          <form onSubmit={handleSubmit(onSubmit)} method="POST">
+            <div className="col-lg-6 bg-indigo text-white">
+              <div className="p-5">
+                <h3 className="fw-normal mb-5">Address Details</h3>
+                <div className="row">
+                  <div className="col-md-6 mb-4">
+                    <select
+                      name="city"
+                      id="addressSelect"
+                      // {...register("city")}
+                      onChange={(e) => {
+                        selectAddress(e);
+                      }}
+                      className="select col-md-6"
+                    >
+                      <option value="">Select</option>
+                      {address?.map((address, i) => (
+                        <option value={address.id} key={address.id}>
+                          {address.address}
+                        </option>
+                      ))}
+                    </select>
 
-              <div className="d-flex justify-content-end">
-                <button type="button" className="btn btn-light btn-lg me-2">
-                  <Link to={"/home"}>Continue shopping</Link>
-                </button>
-                <button type="button" className="btn btn-dark btn-lg">
-                  <Link to={"/home"} className="text-light">
-                    {" "}
-                    Order Place
-                  </Link>
-                </button>
+                    <br></br>
+                    <span>{errors.city?.message}</span>
+                  </div>
+                  <div className="col-md-6 mb-4 ">
+                    <select
+                      name="country"
+                      id="country"
+                      {...register("country")}
+                      className="select col-md-6"
+                    >
+                      <option value="" selected>
+                        Select
+                      </option>
+                      <Dropdown for={Country} />
+                    </select>
+
+                    <br></br>
+                    <span>{errors.country?.message}</span>
+                  </div>
+                  <div className="col-md-6 mb-4  w-50">
+                    <select
+                      name="state"
+                      {...register("state")}
+                      className="select col-md-6"
+                    >
+                      <option value="" selected>
+                        Select
+                      </option>
+                      <Dropdown for={State} />
+                    </select>
+                    <br></br>
+                    <span>{errors.state?.message}</span>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-md-6 mb-4">
+                    <select
+                      name="city"
+                      id="city"
+                      {...register("city")}
+                      className="select col-md-6"
+                    >
+                      <option value="" selected>
+                        Select
+                      </option>
+                      <Dropdown for={City} />
+                    </select>
+
+                    <br></br>
+                    <span>{errors.city?.message}</span>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="form-outline">
+                      <input
+                        type="text"
+                        name="pincode"
+                        id="pincode"
+                        {...register("pincode")}
+                        className="form-control form-control-lg"
+                      />
+                      <label className="form-label" htmlFor="pincode">
+                        Pincode
+                      </label>{" "}
+                      <br></br>
+                      <span>{errors.pincode?.message}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="mb-4 pb-2">
+                  <div className="form-outline form-white">
+                    <input
+                      type="text"
+                      id="address"
+                      name="address"
+                      {...register("address")}
+                      className="form-control form-control-lg"
+                    />
+                    <label className="form-label" htmlFor="address">
+                      Street + Nr Address
+                    </label>
+                    <br></br>
+                    <span>{errors.address?.message}</span>
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  id="submit"
+                  className="btn btn-light btn-lg ml-10"
+                  data-mdb-ripple-color="dark"
+                >
+                  Order Place
+                </button>{" "}
+                <div className="d-flex justify-content-end">
+                  <button type="button" className="btn btn-dark btn-lg">
+                    <Link to={"/home"} className="text-light">
+                      Back to Shopping
+                    </Link>
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          </form>
         </div>
       </section>
     </>
   );
 };
 
-export default ProductCart;
+export default OrderPage;

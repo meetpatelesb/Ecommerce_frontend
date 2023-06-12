@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-
 import { formatter } from "../utils/helper";
 
 // const SERVER_URL =;
@@ -20,7 +19,9 @@ const Home = () => {
 
   const getproduct = async () => {
     try {
+      const token = JSON.parse(localStorage.getItem("token"));
 
+      console.log(token.Userdata.customer_id);
       // const res = await axios({
       //   url:'http://localhost:8001/getproduct',
       //   method:'GET',
@@ -30,12 +31,15 @@ const Home = () => {
       //   },
       //   data:{}
       // })
-      
-const res = await axios.get("http://localhost:8001/getproduct",{
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'JWT fefege...'
-    },data});
+
+      const res = await axios.get(
+        "http://localhost:8001/getproduct"
+        // {
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'Authorization': 'JWT fefege...'
+        //     }}
+      );
       // const res = await axios.get(``);
       const products = await res.data;
       setProductData(products);
@@ -43,22 +47,22 @@ const res = await axios.get("http://localhost:8001/getproduct",{
       console.log(error);
     }
   };
-console.log(productData);
+  console.log(productData);
   const addToCart = async (id) => {
-     const token = JSON.parse(localStorage.getItem('token'));   
+    const token = JSON.parse(localStorage.getItem("token"));
 
-    //  console.log(token.Userdata.customer_id);
-        try {
-          const res = await axios.post("http://localhost:8001/insertcart", {
-            id: id,
-            userId: 51,
-          });
-          const cartItems = await res.data;
-          console.log(cartItems);
-        } catch (error) {
-          console.log("insert+++++++++++++++++++++++");
-          console.log(error);
-        }
+    console.log(token.Userdata.customer_id);
+    try {
+      const res = await axios.post("http://localhost:8001/insertcart", {
+        id: id,
+        userId: 51,
+      });
+      const cartItems = await res.data;
+      console.log(cartItems);
+    } catch (error) {
+      console.log("insert+++++++++++++++++++++++");
+      console.log(error);
+    }
   };
 
   return (
@@ -100,6 +104,20 @@ console.log(productData);
           </div>
 
           <div className="d-flex align-items-center">
+            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+              <li className="nav-item">
+                <Link to={"/addproduct"} className="nav-link">
+                 Add Product
+                </Link>
+              </li>
+            </ul>
+            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+              <li className="nav-item">
+                <Link to={"/orderlist"} className="nav-link">
+                  Order
+                </Link>
+              </li>
+            </ul>
             <Link to={"/cart"} className="nav-link">
               <img
                 src="/images/cartlogo.png"
@@ -149,17 +167,16 @@ console.log(productData);
                               className="w-100"
                             />
                           </figure>
-                          <a href="#!">
-                            <div className="mask">
-                              <div className="d-flex justify-content-start align-items-end h-100">
-                                <h5>
-                                  <span className="badge bg-primary ms-2">
-                                    New
-                                  </span>
-                                </h5>
-                              </div>
+
+                          <div className="mask">
+                            <div className="d-flex justify-content-start align-items-end h-100">
+                              <h5>
+                                <span className="badge bg-primary ms-2">
+                                  New
+                                </span>
+                              </h5>
                             </div>
-                          </a>
+                          </div>
                         </div>
                         <div className="card-body">
                           <h5 className="card-title mb-3">{h.name}</h5>

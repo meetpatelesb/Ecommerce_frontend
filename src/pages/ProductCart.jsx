@@ -201,7 +201,7 @@ const ProductCart = () => {
                   <Link to={"/home"}>Continue shopping</Link>
                 </button>
                 <button type="button" className="btn btn-dark btn-lg">
-                  <Link to={"/home"} className="text-light">
+                  <Link to={"/order"} className="text-light">
                     {" "}
                     Order Place
                   </Link>
