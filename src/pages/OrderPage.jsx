@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { formatter } from "../utils/helper";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Dropdown } from "../components/Dropdown";
 import { City, Country, State } from "../utils/constant";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // import image from "../../../Ecommerce_sequelize2/product_images/1686218496604.png";
 
@@ -25,36 +25,59 @@ const OrderPage = () => {
   }, [cartItems]);
 
   const getAddress = async () => {
-    const userId = 51;
+    const LocalData = JSON.parse(localStorage.getItem("token"));
     try {
-      const res = await axios.post("http://localhost:8001/getaddress", {
-        userId,
-      });
+      const res = await axios.post(
+        "http://localhost:8001/getaddress",
+        {
+          data: {
+            userId: LocalData.Userdata.customer_id,
+          },
+        },
+        {
+          headers: {
+            Authorization: LocalData.token,
+          },
+        }
+      );
       const address = await res.data;
-      // console.log(address.getAddress);
+
       setAddress(address.getAddress);
     } catch (error) {
       console.log(error);
     }
   };
-  console.log(address);
-  address?.map((address) => console.log(address.address));
 
   const selectAddress = (e) => {
-    console.log(e.target.value);
     const id = e.target.value;
-    const findAddress = (address) => {
-      return address.id === id
+    console.log(id);
+    const findAddress = (add) => {
+      console.log(add.id, id);
+      return add.id == id;
     };
-  const x =  address.find(findAddress);
-  console.log(x);
+    // console.log(address);
+    var data = address.find(findAddress);
+    for (let x in data) {
+      setValue(x, data[x]);
+    }
   };
   const getCartItems = async () => {
-    const userId = 51;
+    const LocalData = JSON.parse(localStorage.getItem("token"));
     try {
-      const res = await axios.post(`http://localhost:8001/getcartitems`, {
-        userId: userId,
-      });
+      const res = await axios.post(
+        `http://localhost:8001/getcartitems`,
+        {
+          data: {
+            userId: LocalData.Userdata.customer_id,
+          },
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: LocalData.token,
+          },
+        }
+      );
       const cartItems = await res.data;
       setproductCartData(cartItems.getcartitems);
     } catch (error) {
@@ -67,7 +90,6 @@ const OrderPage = () => {
     productCartData?.map(
       (product) => (totalCartValue += product.price * product.quentity)
     );
-    console.log(totalCartValue, "total");
     setTotalPrice(totalCartValue);
   }, [productCartData]);
 
@@ -97,24 +119,39 @@ const OrderPage = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(formSchema),
     defaultValues: udata,
   });
   // ......
+  const differToast = () => {
+    toast("Order PLaced successfully!!");
+  };
 
   const onSubmit = async (e) => {
-    console.log(e);
-    const address = { ...e, customer_id: 51 };
-    console.log(address);
+    const LocalData = JSON.parse(localStorage.getItem("token"));
+    const address = { ...e, customer_id: LocalData.Userdata.customer_id };
     try {
-      const res = await axios.post("http://localhost:8001/orderplace", address);
+      const res = await axios.post(
+        "http://localhost:8001/orderplace",
+        { address },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: LocalData.token,
+          },
+        }
+      );
       const data = res.data;
-      console.log(data);
+
       if (data?.status === 200 && data?.boolean === true) {
         console.log("email already registererd!!");
-        navigate("/home");
+        differToast();
+        setTimeout(() => {
+          navigate("/home");
+        }, 1800);
       } else {
         console.log("something missing!!!");
       }
@@ -122,10 +159,21 @@ const OrderPage = () => {
       //  setSignupError(true);
       console.log("please try again!!");
     }
-
   };
   return (
     <>
+      <ToastContainer
+        position="top-center"
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <section className="h-100" style={{ backgroundColor: " #508bfc" }}>
         <div className="container h-100">
           <div className="row d-flex justify-content-center align-items-center h-100">
@@ -135,7 +183,7 @@ const OrderPage = () => {
                 <span className="h4">(1 item in your cart)</span>
               </p>
 
-              {  productCartData?.map((items) => {
+              {productCartData?.map((items) => {
                 return (
                   <>
                     <div className="card mb-2">
@@ -197,9 +245,7 @@ const OrderPage = () => {
                     </div>
                   </>
                 );
-              }) 
-              
-            }
+              })}
 
               <div className="card mb-5">
                 <div className="card-body p-4">

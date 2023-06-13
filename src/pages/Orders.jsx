@@ -16,11 +16,21 @@ const OrderPage = () => {
 
   const orderList = async () => {
     try {
-      const token = JSON.parse(localStorage.getItem("token"));
-      const customer_id = token.Userdata.customer_id;
-      const res = await axios.post("http://localhost:8001/orderlist", {
-        customer_id,
-      });
+      const LocalData = JSON.parse(localStorage.getItem("token"));
+      const customer_id = LocalData.Userdata.customer_id;
+      const res = await axios.post(
+        "http://localhost:8001/orderlist",
+        {
+          data: {
+            customer_id,
+          },
+        },
+        {
+          headers: {
+            Authorization: LocalData.token,
+          },
+        }
+      );
 
       const data = res.data;
       setOrderList(data.orderList);

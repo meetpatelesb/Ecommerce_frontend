@@ -105,11 +105,17 @@ const AddProduct = () => {
     formData.append("discription", e.discription);
     formData.append("price", e.price);
     formData.append("product_image", e.product_image[0]);
-
+    const LocalData = JSON.parse(localStorage.getItem("token"));
     try {
       const res = await axios.post(
         "http://localhost:8001/addproduct",
-        formData
+       formData,
+        {
+          headers: {
+            "Content-Type": "multipart/formdata",
+            Authorization: LocalData.token,
+          },
+        }
       );
       const data = res.data;
       navigate("/home");
@@ -259,3 +265,6 @@ const AddProduct = () => {
 };
 
 export default AddProduct;
+
+
+// Air Jordan Shoes of Special Adition by Sanisinh 2023

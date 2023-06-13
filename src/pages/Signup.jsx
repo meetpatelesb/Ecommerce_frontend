@@ -119,10 +119,6 @@ const Signup = () => {
       console.log("please try again!!");
     }
    
-      // const ans = await req.data;
-      // console.log(ans);
-      // .then((res) => console.log(res.config.data))
-      // .catch((err) => console.log(err));
   };
   return (
     <div>

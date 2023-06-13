@@ -17,11 +17,21 @@ const ProductCart = () => {
   }, [cartItems]);
 
   const getCartItems = async () => {
-    const userId = 51;
+    const LocalData = JSON.parse(localStorage.getItem("token"));
     try {
-      const res = await axios.post(`http://localhost:8001/getcartitems`, {
-        userId: userId,
-      });
+      const res = await axios.post(
+        `http://localhost:8001/getcartitems`,
+        {
+          data: {
+            userId: LocalData.Userdata.customer_id,
+          },
+        },
+        {
+          headers: {
+            Authorization: LocalData.token,
+          },
+        }
+      );
       const cartItems = await res.data;
       setproductCartData(cartItems.getcartitems);
     } catch (error) {
@@ -33,25 +43,29 @@ const ProductCart = () => {
     productCartData?.map(
       (product) => (totalCartValue += product.price * product.quentity)
     );
-    console.log(totalCartValue, "total");
     setTotalPrice(totalCartValue);
   }, [productCartData]);
 
   const updateCart = async (productId, type) => {
-    // differ();
-    //  setSweet(true)
-    const userId = 51;
-    console.log(productId, type);
+    const LocalData = JSON.parse(localStorage.getItem("token"));
     try {
-      const res = await axios.post(`http://localhost:8001/updatecart`, {
-        cartId: userId,
-        productId: productId,
-        type: type,
-      });
+      const res = await axios.post(
+        `http://localhost:8001/updatecart`,
+        {
+          data: {
+            cartId: LocalData.Userdata.customer_id,
+            productId: productId,
+            type: type,
+          },
+        },
+        {
+          headers: {
+            Authorization: LocalData.token,
+          },
+        }
+      );
       const updatecart = await res.data;
-      console.log(updatecart.updateQuentity[0]);
       setCartItems(updatecart);
-      // console.log(updatecart);
     } catch (error) {
       console.log(error);
     }
@@ -79,15 +93,7 @@ const ProductCart = () => {
                 <span className="h2">Shopping Cart </span>
                 <span className="h4">(1 item in your cart)</span>
               </p>
-              {/* <Toaster/> */}
-              {/* <SweetAlert
-                show={true}
-                title="Demo"
-                text="SweetAlert in React"
-                onConfirm={() =>{
-                  setSweet(true);
-                }}
-              /> */}
+              
 
               {productCartData?.map((items) => {
                 return (
@@ -164,7 +170,6 @@ const ProductCart = () => {
                           <div className="col-md-2 d-flex justify-content-center">
                             <div>
                               <span>
-                              
                                 <FontAwesomeIcon
                                   icon={faTrash}
                                   onClick={() => {

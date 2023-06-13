@@ -5,23 +5,23 @@ import axios from "axios";
 import { formatter } from "../utils/helper";
 
 // const SERVER_URL =;
-console.log("asdjkhasfba" + process.env.REACT_APP_URL);
+// console.log("asdjkhasfba" + process.env.REACT_APP_URL);
 
 const Home = () => {
   const [productData, setProductData] = useState();
-  const [cartItem, setCartItem] = useState([]);
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     getproduct();
   }, [location]);
-
+   const navigate = useNavigate();
+  const Logout = async()=>{
+    localStorage.clear();
+    navigate('login');
+  }
   const getproduct = async () => {
     try {
-      const token = JSON.parse(localStorage.getItem("token"));
-
-      console.log(token.Userdata.customer_id);
+      const LocalData = JSON.parse(localStorage.getItem("token"));
       // const res = await axios({
       //   url:'http://localhost:8001/getproduct',
       //   method:'GET',
@@ -32,33 +32,40 @@ const Home = () => {
       //   data:{}
       // })
 
-      const res = await axios.get(
-        "http://localhost:8001/getproduct"
-        // {
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         'Authorization': 'JWT fefege...'
-        //     }}
-      );
-      // const res = await axios.get(``);
+      const res = await axios.get("http://localhost:8001/getproduct", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: LocalData.token,
+        },
+      });
       const products = await res.data;
       setProductData(products);
     } catch (error) {
       console.log(error);
     }
   };
-  console.log(productData);
+ 
   const addToCart = async (id) => {
-    const token = JSON.parse(localStorage.getItem("token"));
-
-    console.log(token.Userdata.customer_id);
+    const LocalData = JSON.parse(localStorage.getItem("token"));
+  
     try {
-      const res = await axios.post("http://localhost:8001/insertcart", {
-        id: id,
-        userId: 51,
-      });
+      const res = await axios.post(
+        "http://localhost:8001/insertcart",
+        {
+          data: {
+            id: id,
+            userId: LocalData.Userdata.customer_id,
+          },
+        },
+
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: LocalData.token,
+          },
+        }
+      );
       const cartItems = await res.data;
-      console.log(cartItems);
     } catch (error) {
       console.log("insert+++++++++++++++++++++++");
       console.log(error);
@@ -91,12 +98,12 @@ const Home = () => {
 
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
-                <Link to={"/login"} className="nav-link">
+                <Link to={"login"} className="nav-link">
                   Login in
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to={"/signup"} className="nav-link">
+                <Link to={"signup"} className="nav-link">
                   Sign up
                 </Link>
               </li>
@@ -107,7 +114,7 @@ const Home = () => {
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
                 <Link to={"/addproduct"} className="nav-link">
-                 Add Product
+                  Add Product
                 </Link>
               </li>
             </ul>
@@ -127,12 +134,16 @@ const Home = () => {
                 loading="lazy"
               />
             </Link>
-
+            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+              <li className="nav-item">
+                <span onClick={Logout}>Log Out</span>
+              </li>
+            </ul>
             <Link to={"/profile"} className="nav-link">
               <img
-                src="https://mdbcdn.b-cdn.net/img/new/avatars/2.webp"
-                className="rounded-circle"
-                height="50"
+                src="/images/dummyuser.jpg"
+                className="rounded-circle  ml-10 "
+                height="45"
                 alt="Black and White Portrait of a Man"
                 loading="lazy"
               />

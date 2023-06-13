@@ -41,7 +41,7 @@ const Login = () => {
 
   const onSubmit = async (e) => {
     setLoginData(e);
-          console.log(e);
+
     try {
       // await axios({
       //   url: SERVER_URL + "/login",
@@ -51,20 +51,22 @@ const Login = () => {
       //   },
       //   data: e,
       // });
-      console.log(e);
+
       const res = await axios.post("http://localhost:8001/login", e);
       const data = res.data;
       if (data?.status === 200 && data?.boolean === false) {
         setLoginError(true);
       } else {
-        console.log(data.token);
         localStorage.setItem(
           "token",
           JSON.stringify({ token: data.token, Userdata: data.userData })
-        );  
+        );
+      
         console.log("successfully");
         setLoginError(false);
-        navigate("/home");
+        setTimeout(() => {
+          navigate("home");
+        }, 100);
       }
     } catch (error) {
       setLoginError(true);
